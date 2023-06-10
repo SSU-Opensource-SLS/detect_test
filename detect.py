@@ -1,4 +1,6 @@
-# YOLOv5 🚀 by Ultralytics, AGPL-3.0 license
+# -*- coding: utf-8 -*-
+
+# YOLOv5 🚀 by Ultralytics, AGPL-3.0 license0
 """
 Run YOLOv5 detection inference on images, videos, directories, globs, YouTube, webcam, streams, etc.
 
@@ -20,7 +22,7 @@ Usage - formats:
                                  yolov5s.onnx               # ONNX Runtime or OpenCV DNN with --dnn
                                  yolov5s_openvino_model     # OpenVINO
                                  yolov5s.engine             # TensorRT
-                                 yolov5s.mlmodel            # CoreML (macOS-only)
+                                 yolov5s.mlmodel            # :5000reML (macOS-only)
                                  yolov5s_saved_model        # TensorFlow SavedModel
                                  yolov5s.pb                 # TensorFlow GraphDef
                                  yolov5s.tflite             # TensorFlow Lite
@@ -29,7 +31,7 @@ Usage - formats:
 """
 import time
 from unittest import result
-import requests
+# import requests
 import argparse
 import os
 import platform
@@ -112,16 +114,17 @@ def run(
         dataset = LoadImages(source, img_size=imgsz, stride=stride, auto=pt, vid_stride=vid_stride)
     vid_path, vid_writer = [None] * bs, [None] * bs
 
-    #GET
+    # #GET
 
-    url2 = 'http://127.0.0.1:5000/member/token/M9mVlpZ731Xt0pQk6Ovh7jkrGNf2'
-    response2 = requests.get(url2)
+    # url2 = 'http://127.0.0.1:5000/member/token/M9mVlpZ731Xt0pQk6Ovh7jkrGNf2'
+    # response2 = requests.get(url2)
     
-    json_response = response2.json()
-    url = 'http://127.0.0.1:5000/send_notification'
+    # json_response = response2.json()
+    # url = 'http://127.0.0.1:5000/send_notification'
 
-    # prev 변수 선언 및 초기화
-    prev = 0
+    # # prev 변수 선언 및 초기화
+    # prev_animal = 0 # 임신한 가축을 저장
+    # prev_baby = 0 # 출산후 태어난 가축을 저장
     # Run inference
     model.warmup(imgsz=(1 if pt or model.triton else bs, 3, *imgsz))  # warmup
     seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
@@ -216,30 +219,43 @@ def run(
 
         # Print time (inference-only)
         LOGGER.info(f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms")
-        if len(det):
-            print(f's = {s}')
-            detected_list = list(s.split(', '))
-            detected_list[0] = detected_list[0][11:]
-            # detected_list = list(s.lstrip('0: 480x640 ').split(', '))
-            print(f'detected_list = {detected_list}')
-            detected_list.pop()
-            print(f'detected_list = {detected_list}')
-            for detected in detected_list:
-                print(f'detected = {detected}')
-                s = list(detected.split())
-                print(f's[0] = {s[0]}, s[1] = {s[1]}')
-                if s[1] == 'cow' or s[1] == 'cows':
-                    if int(s[0]) > prev:
-                        for i in json_response:
-                            data = {
-                                'user_id': i['token'],
-                                'title': 'cow',
-                                'body' : 'Look at the Cow.'
-                            }
-                            response = requests.post(url, json=data)
-                            print(f'        >> response = {response}')
-                        prev = int(s[0])
-                    print(f'prev = {prev}')
+        # if len(det):
+        #     print(f's = {s}')
+        #     detected_list = list(s.split(', '))
+        #     detected_list[0] = detected_list[0][11:]
+        #     # detected_list = list(s.lstrip('0: 480x640 ').split(', '))
+        #     print(f'detected_list = {detected_list}')
+        #     detected_list.pop()
+        #     print(f'detected_list = {detected_list}')
+        #     for detected in detected_list:
+        #         print(f'detected = {detected}')
+        #         s = list(detected.split())
+        #         # print(f's[0] = {s[0]}, s[1] = {s[1]}')
+        #         # if s[1] == 'cow':
+        #         #     if int(s[0]) > prev_animal:
+        #         #         for i in json_response:
+        #         #             data = {
+        #         #                 'user_id': i['token'],
+        #         #                 'title': 'cow',
+        #         #                 'body' : '분만하는 소가 인식되었습니다.'
+        #         #             }
+        #         #             response = requests.post(url, json=data)
+        #         #             print(f'        >> response = {response}')
+        #         #         prev_animal = int(s[0])
+        #         #     print(f'prev_animal = {prev_animal}')
+
+        #         # if s[1] == 'cows':
+        #         #     if int(s[0]) > prev_baby:
+        #         #         for i in json_response:
+        #         #             data = {
+        #         #                 'user_id': i['token'],
+        #         #                 'title': 'cow',
+        #         #                 'body' : '소가 분만하기 시작했습니다.'
+        #         #             }
+        #         #             response = requests.post(url, json=data)
+        #         #             print(f'        >> response = {response}')
+        #         #         prev_baby = int(s[0])
+        #         #     print(f'prev_baby = {prev_baby}')
         # Print results
         t = tuple(x.t / seen * 1E3 for x in dt)  # speeds per image
         
@@ -250,7 +266,7 @@ def parse_opt():
     parser.add_argument('--source', type=str, default=ROOT / 'data/images', help='file/dir/URL/glob/screen/0(webcam)')
     parser.add_argument('--data', type=str, default=ROOT / 'data/coco128.yaml', help='(optional) dataset.yaml path')
     parser.add_argument('--imgsz', '--img', '--img-size', nargs='+', type=int, default=[640], help='inference size h,w')
-    parser.add_argument('--conf-thres', type=float, default=0.75, help='confidence threshold')
+    parser.add_argument('--conf-thres', type=float, default=0.15, help='confidence threshold')
     parser.add_argument('--iou-thres', type=float, default=0.45, help='NMS IoU threshold')
     parser.add_argument('--max-det', type=int, default=1000, help='maximum detections per image')
     parser.add_argument('--device', default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
